@@ -145,3 +145,15 @@
     width: 90%; /* Adjust as needed */
   }
 }
+
+/* Hide the landing page while browsing products or the cart. */
+.landing-page.fade-out {
+  visibility: hidden;
+  pointer-events: none;
+}
+
+/* Give the storefront a fully opaque background. */
+.product-list-container.visible {
+  background-color: #f7faf7;
+  backdrop-filter: none;
+}
