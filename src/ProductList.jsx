@@ -1,9 +1,17 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import {
+  addItem,
+  selectCartItems,
+  selectCartCount
+} from './CartSlice';
 import './ProductList.css'
 import CartItem from './CartItem';
 function ProductList({ onHomeClick }) {
     const [showCart, setShowCart] = useState(false);
-    const [showPlants, setShowPlants] = useState(false); // State to control the visibility of the About Us page
+    const dispatch = useDispatch();
+    const cartItems = useSelector(selectCartItems);
+    const cartCount = useSelector(selectCartCount);
 
     const plantsArray = [
         {
@@ -244,7 +252,7 @@ function ProductList({ onHomeClick }) {
     };
     const handlePlantsClick = (e) => {
         e.preventDefault();
-        setShowPlants(true); // Set showAboutUs to true when "About Us" link is clicked
+
         setShowCart(false); // Hide the cart when navigating to About Us
     };
 
@@ -268,15 +276,102 @@ function ProductList({ onHomeClick }) {
 
                 </div>
                 <div style={styleObjUl}>
-                    <div> <a href="#" onClick={(e) => handlePlantsClick(e)} style={styleA}>Plants</a></div>
-                    <div> <a href="#" onClick={(e) => handleCartClick(e)} style={styleA}><h1 className='cart'><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" id="IconChangeColor" height="68" width="68"><rect width="156" height="156" fill="none"></rect><circle cx="80" cy="216" r="12"></circle><circle cx="184" cy="216" r="12"></circle><path d="M42.3,72H221.7l-26.4,92.4A15.9,15.9,0,0,1,179.9,176H84.1a15.9,15.9,0,0,1-15.4-11.6L32.5,37.8A8,8,0,0,0,24.8,32H8" fill="none" stroke="#faf9f9" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" id="mainIconPathAttribute"></path></svg></h1></a></div>
+                    <div>
+    <a href="#home" onClick={handleHomeClick} style={styleA}>Home</a>
+  </div>
+  <div>
+    <a href="#plants" onClick={handlePlantsClick} style={styleA}>Plants</a>
+  </div>
+                    <div> <a href="#" onClick={(e) => handleCartClick(e)} style={styleA}><h1 className='cart'><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" id="IconChangeColor" height="68" width="68"><rect width="156" height="156" fill="none"></rect><circle cx="80" cy="216" r="12"></circle><circle cx="184" cy="216" r="12"></circle><path d="M42.3,72H221.7l-26.4,92.4A15.9,15.9,0,0,1,179.9,176H84.1a15.9,15.9,0,0,1-15.4-11.6L32.5,37.8A8,8,0,0,0,24.8,32H8" fill="none" stroke="#faf9f9" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" id="mainIconPathAttribute"></path></svg>
+    <span
+      aria-label="Cart item count"
+      style={{ color: 'white', fontSize: '20px', marginLeft: '8px' }}
+    >
+      {cartCount}
+    </span>
+  </h1></a></div>
                 </div>
             </div>
             {!showCart ? (
-                <div className="product-grid">
+                
+  <div className="product-grid" style={{ display: 'block', padding: '24px' }}>
+    {plantsArray.map(({ category, plants }) => (
+      <section key={category} style={{ marginBottom: '40px' }}>
+        <h2 style={{ color: '#1d5130', marginBottom: '20px' }}>
+          {category}
+        </h2>
 
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
+          gap: '20px'
+        }}>
+          {plants.map((plant) => {
+            const id = category + '::' + plant.name;
+            const alreadyAdded = cartItems.some(item => item.id === id);
 
-                </div>
+            return (
+              <article
+                key={id}
+                style={{
+                  background: '#ffffff',
+                  borderRadius: '14px',
+                  padding: '16px',
+                  boxShadow: '0 4px 18px rgba(0,0,0,0.09)',
+                  color: '#263c2b'
+                }}
+              >
+                <img
+                  src={plant.image}
+                  alt={plant.name}
+                  loading="lazy"
+                  style={{
+                    width: '100%',
+                    height: '175px',
+                    objectFit: 'cover',
+                    borderRadius: '10px'
+                  }}
+                />
+
+                <h3 style={{ margin: '12px 0 8px' }}>
+                  {plant.name}
+                </h3>
+
+                <p style={{ minHeight: '54px', fontSize: '14px' }}>
+                  {plant.description}
+                </p>
+
+                <p style={{ fontWeight: 'bold', fontSize: '20px' }}>
+                  {plant.cost}
+                </p>
+
+                <button
+                  type="button"
+                  disabled={alreadyAdded}
+                  onClick={() => dispatch(addItem({
+                    ...plant,
+                    id,
+                    category
+                  }))}
+                  style={{
+                    padding: '12px 16px',
+                    width: '100%',
+                    border: 'none',
+                    borderRadius: '8px',
+                    background: alreadyAdded ? '#a8b6aa' : '#288448',
+                    color: 'white',
+                    cursor: alreadyAdded ? 'not-allowed' : 'pointer'
+                  }}
+                >
+                  {alreadyAdded ? 'Added to Cart' : 'Add to Cart'}
+                </button>
+              </article>
+            );
+          })}
+        </div>
+      </section>
+    ))}
+  </div>
             ) : (
                 <CartItem onContinueShopping={handleContinueShopping} />
             )}
